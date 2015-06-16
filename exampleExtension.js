@@ -1,7 +1,4 @@
 
-/* Extension demonstrating a hat block */
-/* Sayamindu Dasgupta <sayamindu@media.mit.edu>, May 2014 */
-
 new (function() {
     var ext = this;
     var alarm_went_off = false; // This becomes true after the alarm goes off
