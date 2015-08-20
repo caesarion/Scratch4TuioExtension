@@ -1,1 +1,0 @@
-var messageOfExampleLibrary = "Library loaded";
