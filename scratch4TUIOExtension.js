@@ -12411,6 +12411,7 @@ Tuio.Client = Tuio.Model.extend({
             ['r','Tuio-Cursor', 'tuioCursor', ''],
             ['r','attribute %m.objectAttributes of %n','getTuioAttribute','']
         ],
+		
 		de: [
 			['h','falls %n ein Update erhaelt','updateEventHatBlock',''],
             ['h','falls %n hinzugefuegt wird' ,'addEventHatBlock',''],
