@@ -12457,7 +12457,7 @@ Tuio.Client = Tuio.Model.extend({
             ['h','falls %n hinzugefügt wird' ,'addEventHatBlock',''],
             ['h','falls %n entfernt wird','removeEventHatBlock',''],
             ['h','falls irgendein Tuio-Objekt geupdatet wird','updateOnAnyObject',''],
-            ['r','zuletzt verändertes Objekt','getLatestTuioObject',''],
+            ['r','zuletzt verändertes Objekt ','getLatestTuioObject',''],
             ['r','Tuio-Object mit der Nummer %n','tuioObject','1'],
             ['r','Tuio-Zeiger', 'tuioCursor', ''],
             ['r','Attribut %m.objectAttributes von %n','getTuioAttribute',''],
