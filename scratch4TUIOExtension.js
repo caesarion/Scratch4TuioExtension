@@ -12461,7 +12461,7 @@ Tuio.Client = Tuio.Model.extend({
             ['r','Tuio-Object mit der Nummer %n','tuioObject','1'],
             ['r','Tuio-Zeiger', 'tuioCursor', ''],
             ['r','Attribut %m.objectAttributes von %n','getTuioAttribute',''],
-			['b', 'Status von  %n : %m.objectStates?', 'getStateOfTuioObject' , '']
+			['b', 'Ist %n %m.objectStates?', 'getStateOfTuioObject' , '']
 		]		
 	}
 	
@@ -12472,7 +12472,7 @@ Tuio.Client = Tuio.Model.extend({
 		},
 		de: {
 			objectAttributes: ['Position X', 'Position Y', 'Winkel','Bewegungsgeschwindigkeit', 'Bewegungsbeschleunigung','Drehgeschwindigkeit', 'Drehbeschleunigung', 'xGeschwindigkeit', 'xBeschleunigung'],
-			objectStates: ['Bewegt sich','Beschleunigt','Bremst','Dreht sich']
+			objectStates: ['in Bewegung','am Beschleunigen','am Bremsen','am Drehen']
 		}
 	}
     // create descriptor for the Scratch flash app ---------------------------------------------------------------------
