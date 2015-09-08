@@ -12480,7 +12480,7 @@ Tuio.Client = Tuio.Model.extend({
 			objectStates: ['moving','accelerating','decelerating','rotating']
 		},
 		de: {
-			objectAttributes: ['Position X', 'Position Y', 'Winkel','Bewegungsgeschwindigkeit', 'Bewegungsbeschleunigung','Drehgeschwindigkeit', 'Drehbeschleunigung', 'xGeschwindigkeit', 'xBeschleunigung','Sitzungsnummer'],
+			objectAttributes: ['Position X', 'Position Y', 'Winkel','Bewegungsgeschwindigkeit', 'Bewegungsbeschleunigung','Drehgeschwindigkeit', 'Drehbeschleunigung', 'xGeschwindigkeit', 'yGeschwindigkeit','Sitzungsnummer'],
 			objectStates: ['in Bewegung','am Beschleunigen','am Bremsen','am Drehen']
 		}
 	}
