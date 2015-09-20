@@ -11722,33 +11722,13 @@ Tuio.Client = Tuio.Model.extend({
                     break;
             }
         }
-      /*  var msg = null;
 
-        var msg2 = oscBundle.split(",");
-        msg = msg2.slice(2, msg2.length-1);
-        switch (msg[0]) {
-            case "/tuio/2Dobj":
-            case "/tuio/2Dcur":
-                this.acceptMessage(msg);
-                break;
-        }
-        msg = msg2[2]
-        /*  for (var i = 0, max = oscBundle.length; i < max; i++) {
-         msg = oscBundle[i];
-         switch (msg[0]) {
-         case "/tuio/2Dobj":
-         case "/tuio/2Dcur":
-         this.acceptMessage(msg);
-         break;
-         }
-         }*/
-    },
 
     acceptMessage: function(oscMessage) {
         var address = oscMessage.address,
             command = oscMessage.args[0],
             args = oscMessage.args.slice(1, oscMessage.length);
-
+	// currently only profiles 2Dobj and 2Dcur supported
         switch (address) {
             case "/tuio/2Dobj":
                 this.handleObjectMessage(command, args);
@@ -11758,8 +11738,9 @@ Tuio.Client = Tuio.Model.extend({
                 break;
         }
     },
-
+	
     handleObjectMessage: function(command, args) {
+    	// switch between TUIO-Message type. 
         switch (command) {
             case "set":
                 this.objectSet(args);
@@ -11774,6 +11755,7 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     handleCursorMessage: function(command, args) {
+    	// switch between TUIO-Message type. 
         switch (command) {
             case "set":
                 this.cursorSet(args);
@@ -11788,6 +11770,7 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     objectSet: function(args) {
+    	// fetch arguments from message
         var sid = args[0],
             cid = args[1],
             xPos = args[2],
@@ -11798,7 +11781,8 @@ Tuio.Client = Tuio.Model.extend({
             rSpeed = args[7],
             mAccel = args[8],
             rAccel = args[9];
-
+	// check whether object existet before: either add or update event!
+	// 
         if (!_.has(this.objectList, sid)) {
             var addObject = new Tuio.Object({
                 si: sid,
@@ -11846,6 +11830,7 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     objectAlive: function(args) {
+    	// compute from the given list of living objekts the remove events
         var removeObject = null;
         this.newObjectList = args;
         this.aliveObjectList = _.difference(this.aliveObjectList, this.newObjectList);
@@ -11860,6 +11845,7 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     objectFseq: function(args) {
+    	// check if package was too late, e.g. if the package is still current
         var fseq = args[0],
             lateFrame = false,
             tobj = null;
@@ -11878,6 +11864,7 @@ Tuio.Client = Tuio.Model.extend({
         }
 
         if (!lateFrame) {
+        	// if packet was not too late, trigger to the 
             for (var i = 0, max = this.frameObjects.length; i < max; i++) {
                 tobj = this.frameObjects[i];
                 switch (tobj.getTuioState()) {
