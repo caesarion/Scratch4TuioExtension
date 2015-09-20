@@ -10968,7 +10968,7 @@ if(typeof window.extensionWasLoaded == 'undefined') {
 /*! Tuio.js - v0.0.1 - 2012-10-14
  * http://fe9lix.github.com/Tuio.js/
  * Copyright (c) 2012 Felix Raab; Licensed GPL */
-
+// This is an exakt replica of the Java TUIO implementation!
 (function(root) {
     // Initial Setup, events mixin and extend/inherits taken from Backbone.js
     // See Backbone.js source for original version and comments.
@@ -11472,6 +11472,7 @@ Tuio.Container = Tuio.Point.extend({
         );
     }
 }, {
+    // list of states that TUIO-Points might be in 
     TUIO_ADDED: 0,
     TUIO_ACCELERATING: 1,
     TUIO_DECELERATING: 2,
@@ -11706,10 +11707,11 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     acceptBundle: function(oscBundle) {
+    	
         var bundle = osc.readPacket(oscBundle.data,{},oscBundle.offset, oscBundle.length);
 
         var packets = bundle.packets;
-
+	// fetch all TUIO-Messages of the TUIO-Bundle
         for(var i = 0, max = packets.length;i<max;i++) {
             var packet = packets[i];
             switch(packet.address) {
@@ -12133,7 +12135,7 @@ Tuio.Client = Tuio.Model.extend({
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------- start tuio extension code
+// ---------------- start Scratch4TUIO extension code
 (function(ext) {
     // initialize tuio client ------------------------------------------------------------------------------------------
     if(typeof window.extensionWasLoaded == 'undefined') {
@@ -12202,7 +12204,8 @@ Tuio.Client = Tuio.Model.extend({
             },
 
             onRefresh = function(time) {
-
+		// do nothin on refresh. This function is called whenever a TUIO-Bundle is received. Not necessary
+		// in Scratch4TUIO
             };
 
         // bind the defined behavior to the events: --------------------------------------------------------------
