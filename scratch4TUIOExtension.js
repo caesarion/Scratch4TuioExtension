@@ -10964,11 +10964,13 @@ if(typeof window.extensionWasLoaded == 'undefined') {
 },{}]},{},[1])
 (1)
 });
-
+//---------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------
 /*! Tuio.js - v0.0.1 - 2012-10-14
  * http://fe9lix.github.com/Tuio.js/
  * Copyright (c) 2012 Felix Raab; Licensed GPL */
-// This is an exakt replica of the Java TUIO implementation!
+
 (function(root) {
     // Initial Setup, events mixin and extend/inherits taken from Backbone.js
     // See Backbone.js source for original version and comments.
@@ -11472,7 +11474,6 @@ Tuio.Container = Tuio.Point.extend({
         );
     }
 }, {
-    // list of states that TUIO-Points might be in 
     TUIO_ADDED: 0,
     TUIO_ACCELERATING: 1,
     TUIO_DECELERATING: 2,
@@ -11487,6 +11488,7 @@ Tuio.Container = Tuio.Point.extend({
         });
     }
 });
+// class definition of TUIO-Cursor
 Tuio.Cursor = Tuio.Container.extend({
     cursorId: null,
 
@@ -11509,6 +11511,7 @@ Tuio.Cursor = Tuio.Container.extend({
         });
     }
 });
+// class definition of TUIO-Object
 Tuio.Object = Tuio.Container.extend({
     symbolId: null,
     angle: null,
@@ -11623,6 +11626,10 @@ Tuio.Object = Tuio.Container.extend({
         });
     }
 });
+// the client manages the data structure for the living TUIO-Points.
+// furthermore it handles the connection via Socket.io to the OSC-Dispatcher .
+// It decodes the TUIO-Bundles and TUIO-Messages and updates the living TUIO-Points list
+// and it triggers certain functions for the 
 Tuio.Client = Tuio.Model.extend({
     host: null,
     socket: null,
@@ -11689,7 +11696,7 @@ Tuio.Client = Tuio.Model.extend({
     isConnected: function() {
         return this.connected;
     },
-
+	// get all TUIO-Objects, TUIO-Cursor etc.
     getTuioObjects: function() {
         return _.clone(this.objectList);
     },
@@ -11697,40 +11704,43 @@ Tuio.Client = Tuio.Model.extend({
     getTuioCursors: function() {
         return _.clone(this.cursorList);
     },
-
+	// get an object with certain SessionID
     getTuioObject: function(sid) {
         return this.objectList[sid];
     },
-
+	// get an cursor with certain SessionID
     getTuioCursor: function(sid) {
         return this.cursorList[sid];
     },
 
+	// decompose the TUIO-Bundel
     acceptBundle: function(oscBundle) {
-    	
         var bundle = osc.readPacket(oscBundle.data,{},oscBundle.offset, oscBundle.length);
 
         var packets = bundle.packets;
-	// fetch all TUIO-Messages of the TUIO-Bundle
+
         for(var i = 0, max = packets.length;i<max;i++) {
             var packet = packets[i];
             switch(packet.address) {
+				// only these profiles are currently possible
                 case "/tuio/2Dobj":
                 case "/tuio/2Dcur":
                     this.acceptMessage(packet);
                     break;
+				// blobs not yet implemented.
                 case "/tuio/2Dblb":
                     console.log("Blog received");
                     break;
             }
         }
-
+ 
+    },
 
     acceptMessage: function(oscMessage) {
         var address = oscMessage.address,
             command = oscMessage.args[0],
             args = oscMessage.args.slice(1, oscMessage.length);
-	// currently only profiles 2Dobj and 2Dcur supported
+		// distinguish between TUIO-Objects and TUIO-Cursors
         switch (address) {
             case "/tuio/2Dobj":
                 this.handleObjectMessage(command, args);
@@ -11740,10 +11750,10 @@ Tuio.Client = Tuio.Model.extend({
                 break;
         }
     },
-	
+
     handleObjectMessage: function(command, args) {
-    	// switch between TUIO-Message type. 
-        switch (command) {
+        // distinguish between the message types
+		switch (command) {
             case "set":
                 this.objectSet(args);
                 break;
@@ -11757,8 +11767,8 @@ Tuio.Client = Tuio.Model.extend({
     },
 
     handleCursorMessage: function(command, args) {
-    	// switch between TUIO-Message type. 
-        switch (command) {
+        // distinguish between the message types
+		switch (command) {
             case "set":
                 this.cursorSet(args);
                 break;
@@ -11771,8 +11781,8 @@ Tuio.Client = Tuio.Model.extend({
         }
     },
 
+	// updates the values of a TUIO-Object
     objectSet: function(args) {
-    	// fetch arguments from message
         var sid = args[0],
             cid = args[1],
             xPos = args[2],
@@ -11783,8 +11793,7 @@ Tuio.Client = Tuio.Model.extend({
             rSpeed = args[7],
             mAccel = args[8],
             rAccel = args[9];
-	// check whether object existet before: either add or update event!
-	// 
+
         if (!_.has(this.objectList, sid)) {
             var addObject = new Tuio.Object({
                 si: sid,
@@ -11831,8 +11840,8 @@ Tuio.Client = Tuio.Model.extend({
         }
     },
 
+	// check which TUIO-Objects are alive and update the list of living objects
     objectAlive: function(args) {
-    	// compute from the given list of living objekts the remove events
         var removeObject = null;
         this.newObjectList = args;
         this.aliveObjectList = _.difference(this.aliveObjectList, this.newObjectList);
@@ -11846,8 +11855,8 @@ Tuio.Client = Tuio.Model.extend({
         }
     },
 
+	// check if the bundle was too late. If not, trigger events to eventlistener (e.g. the ExtensionObject in this case)
     objectFseq: function(args) {
-    	// check if package was too late, e.g. if the package is still current
         var fseq = args[0],
             lateFrame = false,
             tobj = null;
@@ -11866,7 +11875,6 @@ Tuio.Client = Tuio.Model.extend({
         }
 
         if (!lateFrame) {
-        	// if packet was not too late, trigger to the 
             for (var i = 0, max = this.frameObjects.length; i < max; i++) {
                 tobj = this.frameObjects[i];
                 switch (tobj.getTuioState()) {
@@ -11891,14 +11899,14 @@ Tuio.Client = Tuio.Model.extend({
 
         this.frameObjects = [];
     },
-
+	//trigger remove events to eventlistener (e.g. the ExtensionObject in this case)
     objectRemoved: function(tobj) {
         var removeObject = tobj;
         removeObject.remove(this.currentTime);
         this.trigger("removeTuioObject", removeObject);
         delete this.objectList[removeObject.getSessionId()];
     },
-
+	//trigger add events to eventlistener (e.g. the ExtensionObject in this case)
     objectAdded: function(tobj) {
         var addObject = new Tuio.Object({
             ttime: this.currentTime,
@@ -11911,7 +11919,8 @@ Tuio.Client = Tuio.Model.extend({
         this.objectList[addObject.getSessionId()] = addObject;
         this.trigger("addTuioObject", addObject);
     },
-
+//trigger update events to eventlistener (e.g. the ExtensionObject in this case)
+// but only if the TUIO-Object really changed its state
     objectDefault: function(tobj) {
         var updateObject = this.objectList[tobj.getSessionId()];
         if (
@@ -11940,7 +11949,7 @@ Tuio.Client = Tuio.Model.extend({
 
         this.trigger("updateTuioObject", updateObject);
     },
-
+	// update the values of a cursor. check if add event occured
     cursorSet: function(args) {
         var sid = args[0],
             xPos = args[1],
@@ -11948,7 +11957,7 @@ Tuio.Client = Tuio.Model.extend({
             xSpeed = args[3],
             ySpeed = args[4],
             mAccel = args[5];
-
+		// check if add event occured
         if (!_.has(this.cursorList, sid)) {
             var addCursor = new Tuio.Cursor({
                 si: sid,
@@ -11968,7 +11977,7 @@ Tuio.Client = Tuio.Model.extend({
                 (tcur.xSpeed !== xSpeed) ||
                 (tcur.ySpeed !== ySpeed) ||
                 (tcur.motionAccel !== mAccel)) {
-
+				// update the cursor
                 var updateCursor = new Tuio.Cursor({
                     si: sid,
                     ci: tcur.getCursorId(),
@@ -11986,13 +11995,15 @@ Tuio.Client = Tuio.Model.extend({
             }
         }
     },
-
+	// check which cursors are still alive. 
     cursorAlive: function(args) {
         var removeCursor = null;
         this.newCursorList = args;
+		// compute living cursors
         this.aliveCursorList = _.difference(this.aliveCursorList, this.newCursorList);
 
         for (var i = 0, max = this.aliveCursorList.length; i < max; i++) {
+			// determine remove events
             removeCursor = this.cursorList[this.aliveCursorList[i]];
             if (removeCursor) {
                 removeCursor.remove(this.currentTime);
@@ -12000,12 +12011,12 @@ Tuio.Client = Tuio.Model.extend({
             }
         }
     },
-
+	// check currency of bundle. If it was not too late, trigger event to eventlistener (e.g. ScratchExtension Objekt)
     cursorFseq: function(args) {
         var fseq = args[0],
             lateFrame = false,
             tcur = null;
-
+		// check with the frequence id whether the package is current or not
         if (fseq > 0) {
             if (fseq > this.currentFrame) {
                 this.currentTime = Tuio.Time.getSessionTime();
@@ -12020,6 +12031,7 @@ Tuio.Client = Tuio.Model.extend({
         }
 
         if (!lateFrame) {
+			// trigger events
             for (var i = 0, max = this.frameCursors.length; i < max; i++) {
                 tcur = this.frameCursors[i];
                 switch (tcur.getTuioState()) {
@@ -12044,7 +12056,7 @@ Tuio.Client = Tuio.Model.extend({
 
         this.frameCursors = [];
     },
-
+	// trigger remove event for cursor to eventlistener (e.g. ScratchExtension Objekt)
     cursorRemoved: function(tcur) {
         var removeCursor = tcur;
         removeCursor.remove(this.currentTime);
@@ -12073,7 +12085,7 @@ Tuio.Client = Tuio.Model.extend({
             this.freeCursorList.push(removeCursor);
         }
     },
-
+	// trigger add event for cursor to eventlistener (e.g. ScratchExtension Objekt)
     cursorAdded: function(tcur) {
         var cid = _.size(this.cursorList),
             testCursor = null;
@@ -12105,9 +12117,10 @@ Tuio.Client = Tuio.Model.extend({
 
         this.trigger("addTuioCursor", addCursor);
     },
-
+	// trigger update event for cursor to eventlistener (e.g. ScratchExtension Objekt)
     cursorDefault: function(tcur) {
         var updateCursor = this.cursorList[tcur.getSessionId()];
+		// check if there were status changes
         if (
             (tcur.getX() !== updateCursor.getX() && tcur.getXSpeed() === 0) ||
             (tcur.getY() !== updateCursor.getY() && tcur.getYSpeed() === 0)) {
@@ -12118,6 +12131,7 @@ Tuio.Client = Tuio.Model.extend({
                 yp: tcur.getY()
             });
         } else {
+			// update cursor
             updateCursor.update({
                 ttime: this.currentTime,
                 xp: tcur.getX(),
@@ -12135,7 +12149,7 @@ Tuio.Client = Tuio.Model.extend({
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------- start Scratch4TUIO extension code
+// ---------------- start tuio extension code
 (function(ext) {
     // initialize tuio client ------------------------------------------------------------------------------------------
     if(typeof window.extensionWasLoaded == 'undefined') {
@@ -12204,8 +12218,7 @@ Tuio.Client = Tuio.Model.extend({
             },
 
             onRefresh = function(time) {
-		// do nothin on refresh. This function is called whenever a TUIO-Bundle is received. Not necessary
-		// in Scratch4TUIO
+
             };
 
         // bind the defined behavior to the events: --------------------------------------------------------------
@@ -12256,12 +12269,14 @@ Tuio.Client = Tuio.Model.extend({
         var current = window.tuioObjects[id];
         if (typeof current == 'undefined' || current == null)
             return false;
-
+		// compare the times of the received Update with the current time
         var sessionTime = Tuio.Time.getSessionTime();
         var currentTime = current.getTuioTime();
         var timeDifference = sessionTime.subtractTime(currentTime);
         var value = (timeDifference.getSeconds() == 0 && timeDifference.getMicroseconds() <= window.expiringMicroseconds);
         if (value) {
+			// this mechanism is necessary due to the fact that hat blocks only fire when an up flank is received.
+			// This mechanism creates this flank
             if (window.trueUpdateCount[id]) {
                 window.trueUpdateCount[id]++;
             }
@@ -12324,11 +12339,13 @@ Tuio.Client = Tuio.Model.extend({
     // the window.latestObjectID or the window.cursorID
     ext.getTuioAttribute = function(attributeName,id){
         var current;
+		// decode the id
         if(id == window.latestObjectID)
             current = window.latestTuioObject;
         else
             current = window.tuioObjects[id];
         if(typeof current !='undefined' && current !=null){
+			// switch between the selecte menu entry and return accordinglys
             switch(attributeName) {
 				case menus[lang].objectAttributes [0]: // case PosX
 					return window.convertXToScratchCoordinate(current.getX()) ; break;
@@ -12356,13 +12373,15 @@ Tuio.Client = Tuio.Model.extend({
 	// @param state --> the state that should be checked
 	ext.getStateOfTuioObject = function(id, state) {
 		var current;
+		// decode the id
 		if(id == window.latestObjectID)
             current = window.latestTuioObject;
         else
             current = window.tuioObjects[id];
 		if(typeof current !='undefined' && current !=null){
 			var currentStatus = current.getTuioState();
-			switch(state) {				
+			switch(state) {	
+				// switch between the selecte menu entry and return accordinglys			
 				case menus[lang].objectStates [0]: // case Moving
 					return  ((currentStatus === Tuio.Object.TUIO_ACCELERATING) ||(currentStatus === Tuio.Object.TUIO_DECELERATING) ||(currentStatus === Tuio.Object.TUIO_ROTATING));  ; break;
 				case menus[lang].objectStates [1]: // case Accelerating
@@ -12389,12 +12408,14 @@ Tuio.Client = Tuio.Model.extend({
         var current = window.latestTuioObject;
         if(typeof current =='undefined' || current ==null)
             return false;
-
+		// compare the times of the received Update with the current time
         var sessionTime =  Tuio.Time.getSessionTime();
         var currentTime = current.getTuioTime();
         var timeDifference = sessionTime.subtractTime(currentTime);
         var value = (timeDifference.getSeconds() ==0 && timeDifference.getMicroseconds() <=window.expiringMicroseconds);
         if(value){
+			// this mechanism is necessary due to the fact that hat blocks only fire when an up flank is received.
+			// This mechanism creates this flank
             if(window.trueUpdateCount[id]) {
                 window.trueUpdateCount[id]++;
             }
@@ -12430,13 +12451,14 @@ Tuio.Client = Tuio.Model.extend({
 	// find out language --> Check for GET param 'lang'
 	  var paramString = window.location.search.replace(/^\?|\/$/g, '');
 	  var vars = paramString.split("&");
-	  var lang = 'de';
+	 // default langugage, in case the language check fails.
+	 var lang = 'de';
 	  for (var i=0; i<vars.length; i++) {
 		var pair = vars[i].split('=');
 		if (pair.length > 1 && pair[0]=='lang')
 		  lang = pair[1];
 	  }
-
+	// the block definitions in english and german
 	var blocks = {
 		en: [
             ['h','when %n updated','updateEventHatBlock',''],
@@ -12456,14 +12478,14 @@ Tuio.Client = Tuio.Model.extend({
             ['h','falls %n entfernt wird','removeEventHatBlock',''],
             ['h','falls irgendein TUIO-Objekt geupdatet wird','updateOnAnyObject',''],
             ['r','zuletzt verändertes TUIO-Objekt ','getLatestTuioObject',''],
-            ['r','TUIO-Objekt mit der Symbolummer %n','tuioObject',''],
-            ['r','TUIO-Objekt mit der Sizungsnummer %n','tuioObjectSessionID',''],
+            ['r','TUIO-Objekt mit der Symbolnummer %n','tuioObject',''],
+            ['r','TUIO-Objekt mit der Sitzungsnummer %n','tuioObjectSessionID',''],
             ['r','TUIO-Zeiger', 'tuioCursor', ''],
             ['r','Attribut %m.objectAttributes von %n','getTuioAttribute',''],
 			['b', 'Ist %n %m.objectStates?', 'getStateOfTuioObject' , '']
 		]		
 	}
-	
+	// the menus in english and german
 	var menus = {
 		en: {
 			objectAttributes: ['Position X', 'Position Y', 'Angle','Motion Speed', 'Motion Accel','Rotation Speed', 'Rotation Accel', 'xSpeed', 'ySpeed', 'sessionID'],
