@@ -12452,7 +12452,7 @@ Tuio.Client = Tuio.Model.extend({
 	  var paramString = window.location.search.replace(/^\?|\/$/g, '');
 	  var vars = paramString.split("&");
 	 // default langugage, in case the language check fails.
-	 var lang = 'de';
+	 var lang = 'en';
 	  for (var i=0; i<vars.length; i++) {
 		var pair = vars[i].split('=');
 		if (pair.length > 1 && pair[0]=='lang')
